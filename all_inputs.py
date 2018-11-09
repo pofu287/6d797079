@@ -19,23 +19,24 @@ class Local_aux_methods:
         sanitized_input = []
         all_units = re.split('; |, |-|\s',console_input)
         # remove the empty strings left in all_units list as filter leaving some behind
-        #print(all_units)
         all_units = [unit for unit in all_units if unit]
         for idx, unit in enumerate(all_units):
             sanitized_input.append(unit)
         #sanitizing the inut returning formatted input as start_period, end_period, day, occurences, starts_at, ends_at, label. Label may not be input so a default label is given
         last_index = len(sanitized_input) - 1
-        for i in range (2, last_index):
-            if (i < last_index - 1 and regexs_obj.is_day_of_week(sanitized_input[i].upper()) and regexs_obj.is_day_of_week(sanitized_input[i+1].upper()) ):
-                occurences = aux_obj.total_days_in_gap(sanitized_input[i].upper(),sanitized_input[i+1].upper())
+        i = 2 
+        while (i < last_index):
+            day1 = sanitized_input[i].upper()
+            day2 = sanitized_input[i+1].upper()
+            if (i < last_index - 1 and regexs_obj.is_day_of_week(day1) and regexs_obj.is_day_of_week(day2) ):
+                occurences = aux_obj.total_days_in_gap(day1,day2)
                 sanitized_input[i+1] = str(occurences)
-                i += 3
-            elif regexs_obj.is_day_of_week(sanitized_input[i].upper()):
+            elif regexs_obj.is_day_of_week(day1):
                 occurences = '1'
-                sanitized_input[i+1] = occurences
-                i += 2
-        #print(sanitized_input)
-        return sanitized_input #start_period, end_period, the_day, occurs, starts_at, ends_at
+                sanitized_input.insert(i+1, occurences)
+                last_index = len(sanitized_input) - 1
+            i += 5
+        return sanitized_input
         
 
 class Inputs:
@@ -62,13 +63,23 @@ class Inputs:
         pattern_input = ''
         while True:
             print ('Hard coded input...')
-            #'\n01/01/2019 - 31/12/2019, Sat - Sun 07:00 - 19:00 early, Mon - Thu 09:00 - 17:00 no_label, Mon - Tue 11:00 - 18:00 no_label, Thu 14:00 - 22:00 late, Fri 10:00 - 16:00 no_label, Sun 07:00 - 15:00 early, Sun - Sat 12:00 - 19:00 tweleve9'
-            pattern_input += '\n01/01/2019 - 31/12/2019, Mon - Fri 09:00 - 17:00 no_label, Mon - Fri 07:00 - 15:00 early, Sat - Sun 07:00 - 19:00 early, Mon - Thu 09:00 - 17:00 no_label, Mon - Tue 11:00 - 18:00 no_label, Thu 14:00 - 22:00 late, Fri 10:00 - 16:00 no_label, Sun 07:00 - 15:00 early, Sun - Sat 12:00 - 19:00 tweleve9'
+            #'\n01/01/2019 - 31/12/2019, Sat - Sun 07:00 - 19:00 early, Mon - Thu 09:00 - 17:00 no_label, Mon - Tue 11:00 - 18:00 no_label, Thu 14:00 - 22:00 late, Fri 10:00 - 16:00 no_label, Sun 07:00 - 15:00 early, Sun - Sat 12:00 - 19:00 tweleve7'
+            pattern_input += '\n01/01/2019 - 31/12/2019, Mon - Fri 09:00 - 17:00 NO_LABEL, Mon - Fri 07:00 - 15:00 EARLY, Sat - Sun 07:00 - 19:00 EARLY, Mon - Thu 09:00 - 17:00 NO_LABEL, Mon - Tue 11:00 - 18:00 NO_LABEL, Thu 14:00 - 22:00 LATE, Fri 10:00 - 16:00 NO_LABEL, Sun 07:00 - 15:00 EARLY, Sun - Sat 12:00 - 19:00 TWELVE7'
             cleaned_input = local_aux_obj.sanitize_input(pattern_input)
             # Generate tot from sanitized input
             start_period, end_period = cleaned_input[0], cleaned_input[1]
-            for idx, unit in enumerate(cleaned_input):
-                print(idx, unit)
+            pprint.pprint(cleaned_input)
+            params_tally = len(cleaned_input)
+            if (params_tally % 4 != 0):
+                print('Input error: {} params entered' %params_tally)
+                input();
+            for i in range(2, params_tally, 5):
+                for  j in range(0,5):
+                    print(cleaned_input[i+j])
+                i = i + 5
+                print('*'*20)
+            #for idx, unit in enumerate(cleaned_input):
+            #    print(idx, unit)
             response = input('More ?: ')
             if (response != 'y'):
                 return tot
